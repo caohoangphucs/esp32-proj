@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 GPS Map Tracker</title>
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="overlay">
+        <div class="glass-panel">
+            <div class="header">
+                <div class="status-indicator"></div>
+                <h1>Live Map Tracker</h1>
+            </div>
+            <p>Waiting for GPS coordinates from your ESP32 module...</p>
+        </div>
+        
+        <div class="glass-panel" style="margin-top: 16px; padding: 20px;">
+            <h2 style="font-size: 1.1rem; color: #c9d1d9; margin-bottom: 16px; text-align: center; text-transform: uppercase;">Car Controls</h2>
+            <div class="dpad">
+                <div class="dpad-row">
+                    <button id="btn-up" class="dpad-btn">W</button>
+                </div>
+                <div class="dpad-row">
+                    <button id="btn-left" class="dpad-btn">A</button>
+                    <button id="btn-down" class="dpad-btn">S</button>
+                    <button id="btn-right" class="dpad-btn">D</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="script.js"></script>
+</body>
+</html>
