@@ -2,7 +2,7 @@ import asyncio
 import websockets
 
 async def test_car_connection():
-    uri = "ws://localhost:6789/ws/car"
+    uri = "ws://localhost:5678/ws/car"
     print(f"📡 Connecting to simulating IoT Car at {uri}...")
     
     try:

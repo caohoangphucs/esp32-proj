@@ -110,6 +110,6 @@ app.mount("/", StaticFiles(directory=current_dir, html=True), name="static")
 
 if __name__ == '__main__':
     print("🚀 FastAPI Car Controller Server is running!")
-    print("🌐 View controller at: http://localhost:6789")
+    print("🌐 View controller at: http://localhost:5678")
     print("🎮 Use car controls to send commands")
-    uvicorn.run("server:app", host="0.0.0.0", port=6789)
+    uvicorn.run("server:app", host="0.0.0.0", port=5678)
