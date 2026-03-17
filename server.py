@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request
+
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -112,44 +113,7 @@ async def get_queue_status():
         "commands": queue_info["commands"]
     }
 
-@app.websocket("/ws/car")
-async def websocket_car_endpoint(websocket: WebSocket):
-    """
-    WebSocket endpoint for ESP32 car commands.
-    Polls command queue and sends new commands to client.
-    """
-    print(f"🔌 WebSocket connection attempt from {websocket.client}")
-    await websocket.accept()
-    print(f"✅ WebSocket connected from {websocket.client}")
-    
-    try:
-        while True:
-            # Wait for any message from client (heartbeat or command)
-            try:
-                data = await asyncio.wait_for(websocket.receive_text(), timeout=1.0)
-                if data:
-                    cmd = data.strip()
-                    if cmd:
-                        await command_queue.add_command(cmd)
-            except asyncio.TimeoutError:
-                pass
-            
-            # Poll for commands to send to this client
-            commands = await command_queue.get_commands()
-            if commands:
-                for cmd in commands:
-                    await websocket.send_json({"command": cmd})
-                    print(f"🎮 Sent via WebSocket: {cmd}")
-            # Don't send None every loop, just wait for next iteration
 
-    except WebSocketDisconnect:
-        print("🔌 A WebSocket client disconnected.")
-    except Exception as e:
-        print(f"❌ WebSocket error: {e}")
-        try:
-            await websocket.close()
-        except:
-            pass
 
 # Serve static files
 current_dir = os.path.dirname(os.path.abspath(__file__))

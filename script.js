@@ -1,10 +1,5 @@
-// --- IoT Car WebSocket Controls ---
-const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const ws = new WebSocket(`${wsProtocol}//${location.host}/ws/car`);
+// --- IoT Car Controls ---
 
-ws.onopen = () => console.log("🔌 Connected to IoT Car WebSocket!");
-ws.onerror = (err) => console.error("WebSocket Error:", err);
-ws.onclose = (event) => console.warn("🔌 WebSocket closed:", event);
 async function sendCommand(cmd) {
     try {
         await fetch(`/command?cmd=${cmd}`, { method: 'POST' });
