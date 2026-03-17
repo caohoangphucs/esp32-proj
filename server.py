@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -115,8 +115,23 @@ async def websocket_car_endpoint(websocket: WebSocket):
 # Serve static files
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Mount all static files including HTML as fallback
-app.mount("/", StaticFiles(directory=current_dir, html=True), name="static")
+@app.get("/")
+async def root():
+    """Serve index.html"""
+    return FileResponse(os.path.join(current_dir, "index.html"), media_type="text/html")
+
+@app.get("/style.css")
+async def get_style():
+    """Serve CSS"""
+    return FileResponse(os.path.join(current_dir, "style.css"), media_type="text/css")
+
+@app.get("/script.js")
+async def get_script():
+    """Serve JavaScript"""
+    return FileResponse(os.path.join(current_dir, "script.js"), media_type="application/javascript")
+
+# Fallback for any other static files
+app.mount("/static", StaticFiles(directory=current_dir), name="static")
 
 if __name__ == '__main__':
     print("🚀 FastAPI Car Controller Server is running!")
