@@ -1,15 +1,40 @@
-// --- IoT Car WebSocket Controls ---
-const ws = new WebSocket(`ws://${location.host}/ws/car`);
-
-ws.onopen = () => console.log("🔌 Connected to IoT Car WebSocket!");
-ws.onerror = (err) => console.error("WebSocket Error:", err);
-
 function sendCommand(cmd) {
-    if (ws.readyState === WebSocket.OPEN) {
-        ws.send(cmd + '\n');
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        // Send plain character without newline to match ESP32 switch-case
+        ws.send(cmd);
         console.log(`📤 Sent Command: ${cmd}`);
     }
 }
+
+// Global variable for WebSocket to allow access in reconnection
+let ws = null;
+
+function connectWebSocket() {
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${wsProtocol}//${location.host}/ws/car`);
+
+    ws.onopen = () => {
+        console.log("🔌 Connected to IoT Car WebSocket!");
+        document.querySelector('.status-indicator')?.classList.add('online');
+    };
+
+    ws.onerror = (err) => {
+        console.error("WebSocket Error:", err);
+    };
+
+    ws.onclose = (event) => {
+        console.warn("🔌 WebSocket closed. Retrying in 2s...", event);
+        document.querySelector('.status-indicator')?.classList.remove('online');
+        setTimeout(connectWebSocket, 2000);
+    };
+
+    ws.onmessage = (msg) => {
+        console.log("📥 Received from Server:", msg.data);
+    };
+}
+
+// Initial connection
+connectWebSocket();
 
 let commandInterval = null;
 let activeCommand = null;
@@ -65,6 +90,7 @@ document.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     if (keyMap[key] && !keysHeld[key]) {
         keysHeld[key] = true;
+        console.log(`⌨️ Key down: ${key} -> ${keyMap[key]}`);
         startCommand(keyMap[key]);
     }
 });
