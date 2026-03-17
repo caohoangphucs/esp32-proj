@@ -2,13 +2,13 @@ import asyncio
 import websockets
 
 async def test_car_connection():
-    uri = "ws://localhost:8000/ws/car"
+    uri = "ws://localhost:6789/ws/car"
     print(f"📡 Connecting to simulating IoT Car at {uri}...")
     
     try:
         async with websockets.connect(uri) as websocket:
             print("✅ Connected! I am now acting as the ESP32.")
-            print("👉 Go to your webpage http://localhost:8000 and click the Car Control D-Pad!")
+            print("👉 Go to your webpage http://localhost:6789 and click the Car Control D-Pad!")
             print("-" * 50)
             
             while True:

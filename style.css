@@ -11,16 +11,9 @@ body {
     overflow: hidden;
     position: relative;
     background-color: #0d1117;
-}
-
-#map {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Keep map in the background */
-    background: #0d1117; /* Seamless dark fall back */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Float controls above map */
@@ -78,7 +71,7 @@ body {
     font-size: 0.85rem;
     color: #8b949e;
     line-height: 1.5;
-    margin-bottom: 24px;
+    margin-bottom: 0;
 }
 
 .input-group {
@@ -125,131 +118,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] {
     -moz-appearance: textfield;
-}
-
-button {
-    width: 100%;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: #0d1117;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-}
-
-button:hover {
-    box-shadow: 0 4px 20px rgba(79, 172, 254, 0.5);
-    transform: translateY(-2px);
-    color: #ffffff;
-}
-
-button:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 10px rgba(79, 172, 254, 0.4);
-}
-
-/* Custom Marker Styling for Glowing Dot */
-.custom-icon-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.custom-pin {
-    width: 18px;
-    height: 18px;
-    background: #00ff88;
-    border: 2px solid #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 15px rgba(0, 255, 136, 0.8), 0 0 30px rgba(0, 255, 136, 0.4);
-    position: relative;
-    /* Move to align center correctly with Leaflet */
-    transform: translate(-30%, -30%); 
-}
-
-.custom-pin::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 50px;
-    height: 50px;
-    background: rgba(0, 255, 136, 0.2);
-    border-radius: 50%;
-    animation: pulse-ring 2.5s infinite ease-out;
-    pointer-events: none;
-}
-
-@keyframes pulse-ring {
-    0% {
-        transform: translate(-50%, -50%) scale(0.3);
-        opacity: 1;
-    }
-    80%, 100% {
-        transform: translate(-50%, -50%) scale(1.5);
-        opacity: 0;
-    }
-}
-
-@keyframes pulse-status {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 6px rgba(0, 255, 136, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
-    }
-}
-
-/* Leaflet Overrides for Dark Mode popups */
-.leaflet-popup-content-wrapper {
-    background: #161b22 !important;
-    color: #e6edf3 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
-    font-family: inherit !important;
-}
-
-.leaflet-popup-tip {
-    background: #161b22 !important;
-    border: 1px solid transparent !important;
-}
-
-.leaflet-popup-content b {
-    color: #00f2fe;
-    font-size: 1.05rem;
-    display: block;
-    margin-bottom: 6px;
-}
-
-/* Move Leaflet controls to bottom right */
-.leaflet-top, .leaflet-bottom {
-    z-index: 999;
-}
-.leaflet-control-zoom {
-    border: none !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
-}
-.leaflet-control-zoom a {
-    background: #161b22 !important;
-    color: #e6edf3 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-.leaflet-control-zoom a:hover {
-    background: #21262d !important;
-    color: #4facfe !important;
 }
 
 /* D-Pad Styling */
