@@ -1,61 +1,34 @@
-function sendCommand(cmd) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        // Send plain character without newline to match ESP32 switch-case
-        ws.send(cmd);
-        console.log(`📤 Sent Command: ${cmd}`);
+// --- IoT Car WebSocket Controls ---
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const ws = new WebSocket(`${wsProtocol}//${location.host}/ws/car`);
+
+ws.onopen = () => console.log("🔌 Connected to IoT Car WebSocket!");
+ws.onerror = (err) => console.error("WebSocket Error:", err);
+ws.onclose = (event) => console.warn("🔌 WebSocket closed:", event);
+async function sendCommand(cmd) {
+    try {
+        await fetch(`/command?cmd=${cmd}`, { method: 'POST' });
+        console.log(`📤 Queued Command: ${cmd}`);
+    } catch (err) {
+        console.error("Failed to queue command:", err);
     }
 }
-
-// Global variable for WebSocket to allow access in reconnection
-let ws = null;
-
-function connectWebSocket() {
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    ws = new WebSocket(`${wsProtocol}//${location.host}/ws/car`);
-
-    ws.onopen = () => {
-        console.log("🔌 Connected to IoT Car WebSocket!");
-        document.querySelector('.status-indicator')?.classList.add('online');
-    };
-
-    ws.onerror = (err) => {
-        console.error("WebSocket Error:", err);
-    };
-
-    ws.onclose = (event) => {
-        console.warn("🔌 WebSocket closed. Retrying in 2s...", event);
-        document.querySelector('.status-indicator')?.classList.remove('online');
-        setTimeout(connectWebSocket, 2000);
-    };
-
-    ws.onmessage = (msg) => {
-        console.log("📥 Received from Server:", msg.data);
-    };
-}
-
-// Initial connection
-connectWebSocket();
 
 let commandInterval = null;
 let activeCommand = null;
 
 function startCommand(cmd) {
-    if (activeCommand === cmd) return; // Prevent double trigger
-    stopCommand(false); // Clear previous if sliding finger between buttons
-    
+    if (activeCommand === cmd) return;
     activeCommand = cmd;
-    sendCommand(cmd); // Send initially
-    commandInterval = setInterval(() => sendCommand(cmd), 100); // Repeat while held
+    sendCommand(cmd);
 }
 
-function stopCommand(shouldSendStop = true) {
-    if (commandInterval) {
-        clearInterval(commandInterval);
-        commandInterval = null;
-    }
-    if (activeCommand) {
+function stopCommand(cmd) {
+    // If a specific cmd is provided, only stop if it matches the active command
+    // Otherwise (like for buttons), always stop if there's any active command
+    if (activeCommand && (!cmd || activeCommand === cmd)) {
         activeCommand = null;
-        if (shouldSendStop) sendCommand('S');
+        sendCommand('S');
     }
 }
 
@@ -97,10 +70,45 @@ document.addEventListener('keydown', (e) => {
 
 document.addEventListener('keyup', (e) => {
     const key = e.key.toLowerCase();
-    if (keyMap[key]) {
+    const cmd = keyMap[key];
+    if (cmd) {
         keysHeld[key] = false;
-        if (!Object.values(keysHeld).some(v => v)) {
-            stopCommand();
+        stopCommand(cmd);
+        
+        // Resume if another key is still held
+        for (const k in keysHeld) {
+            if (keysHeld[k]) {
+                startCommand(keyMap[k]);
+                break;
+            }
         }
     }
 });
+
+// --- Queue Debug Display ---
+async function updateQueueDisplay() {
+    try {
+        const response = await fetch('/api/queue');
+        const data = await response.json();
+        
+        const sizeEl = document.getElementById('queue-size');
+        const commandsEl = document.getElementById('queue-commands');
+        
+        if (sizeEl && commandsEl) {
+            sizeEl.textContent = data.queue_size;
+            
+            if (data.queue_size === 0) {
+                commandsEl.textContent = '(empty)';
+            } else {
+                commandsEl.innerHTML = data.commands
+                    .map(cmd => `<div style="padding: 4px 0;">→ ${cmd}</div>`)
+                    .join('');
+            }
+        }
+    } catch (error) {
+        console.error("Failed to fetch queue status:", error);
+    }
+}
+
+// Update queue display every 500ms
+setInterval(updateQueueDisplay, 500);

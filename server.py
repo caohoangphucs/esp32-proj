@@ -5,6 +5,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from typing import Dict, Optional
+from collections import deque
+import asyncio
 
 app = FastAPI(title="ESP32 Car Controller Server (FastAPI)")
 
@@ -17,47 +19,50 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
-        self.command_history: list[str] = []
+class CommandQueue:
+    def __init__(self, max_size=100):
+        self.queue: deque = deque(maxlen=max_size)
+        self.lock = asyncio.Lock()
 
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-        
-        # Send all previous commands to the newly connected client
-        for command in self.command_history:
-            try:
-                await websocket.send_text(command)
-            except:
-                pass
+    async def add_command(self, command: str):
+        """Add command to queue"""
+        async with self.lock:
+            self.queue.append(command.strip())
+            print(f"📥 Command added to queue: {command.strip()} (Queue size: {len(self.queue)})")
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    async def get_commands(self) -> list[str]:
+        """Get all commands from queue and clear it"""
+        async with self.lock:
+            commands = list(self.queue)
+            self.queue.clear()
+            return commands
 
-    async def broadcast(self, message: str):
-        # Add command to history
-        self.command_history.append(message)
-        
-        # Broadcast to all connected clients
-        for connection in self.active_connections:
-            try:
-                await connection.send_text(message)
-            except:
-                pass
+    async def get_command_count(self) -> int:
+        """Get current queue size"""
+        async with self.lock:
+            return len(self.queue)
 
-manager = ConnectionManager()
+    async def peek_queue(self) -> dict:
+        """Peek at queue without clearing it - for debug display"""
+        async with self.lock:
+            return {
+                "size": len(self.queue),
+                "commands": list(self.queue)
+            }
+
+command_queue = CommandQueue()
 
 @app.get("/api/docs")
-async def websocket_docs():
+async def api_docs():
     """
-    WebSocket Car Controller Documentation
+    Car Command Polling API Documentation
     
-    **WebSocket Endpoint**: `/ws/car`
+    **Endpoint**: `GET /command`
     
-    **Description**: Connect to receive all car commands. When a client connects, it receives 
-    all previous commands from history, then receives new commands in real-time.
+    **POST Command**: `POST /command` - Submit commands (F/B/L/R/S)
+    
+    **Description**: Polling-based system. Commands are queued on the server.
+    Clients poll the `/command` endpoint to retrieve pending commands.
     
     **Commands**:
     - `F`: Move forward
@@ -66,49 +71,83 @@ async def websocket_docs():
     - `R`: Turn right
     - `S`: Stop
     
-    **Message Format**: Plain text command strings (e.g., "F", "B", "L", "R", "S")
-    
-    **Example Connection**:
-    ```
-    ws://localhost:8000/ws/car
-    ```
-    
-    **Behavior**:
-    1. On connection: Client receives all previously sent commands
-    2. During session: Client receives new commands as they arrive
-    3. On disconnect: Client is removed from active connections
+    **Workflow**:
+    1. Frontend sends command via POST /command?cmd=F
+    2. Command gets added to queue
+    3. ESP32/client polls GET /command
+    4. Server returns all pending commands
+    5. Queue is cleared after polling
     """
     return {
-        "endpoint": "/ws/car",
-        "description": "WebSocket endpoint for car commands",
-        "protocol": "ws://",
+        "polling_endpoint": "GET /command",
+        "submit_endpoint": "POST /command?cmd=F",
+        "description": "Polling-based command queue system",
         "commands": ["F (Forward)", "B (Backward)", "L (Left)", "R (Right)", "S (Stop)"]
+    }
+
+@app.get("/command")
+async def get_commands():
+    """Poll for pending commands - returns all queued commands and clears queue"""
+    commands = await command_queue.get_commands()
+    queue_size = await command_queue.get_command_count()
+    print(f"📤 Commands polled: {commands} (Queue now has {queue_size} items)")
+    return {"commands": commands}
+
+@app.post("/command")
+async def post_command(cmd: str):
+    """Submit a command to the queue"""
+    if not cmd or len(cmd) > 1:
+        return {"status": "error", "message": "Command must be a single character"}
+    
+    await command_queue.add_command(cmd)
+    return {"status": "success", "message": f"Command '{cmd}' queued"}
+
+@app.get("/api/queue")
+async def get_queue_status():
+    """Get current queue status for debugging"""
+    queue_info = await command_queue.peek_queue()
+    return {
+        "status": "ok",
+        "queue_size": queue_info["size"],
+        "commands": queue_info["commands"]
     }
 
 @app.websocket("/ws/car")
 async def websocket_car_endpoint(websocket: WebSocket):
     """
     WebSocket endpoint for ESP32 car commands.
-    
-    Connects to receive all car control commands. On connection,
-    the client receives all previously sent commands, then receives
-    new commands in real-time as other clients send them.
+    Polls command queue and sends new commands to client.
     """
     print(f"🔌 WebSocket connection attempt from {websocket.client}")
-    await manager.connect(websocket)
+    await websocket.accept()
     print(f"✅ WebSocket connected from {websocket.client}")
+    
     try:
         while True:
-            data = await websocket.receive_text()
-            print(f"🎮 Car Command Received: {data.strip()}")
-            await manager.broadcast(data)
+            # Wait for any message from client (heartbeat or command)
+            try:
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=1.0)
+                if data:
+                    cmd = data.strip()
+                    if cmd:
+                        await command_queue.add_command(cmd)
+            except asyncio.TimeoutError:
+                pass
+            
+            # Poll for commands to send to this client
+            commands = await command_queue.get_commands()
+            if commands:
+                for cmd in commands:
+                    await websocket.send_json({"command": cmd})
+                    print(f"🎮 Sent via WebSocket: {cmd}")
+            # Don't send None every loop, just wait for next iteration
+
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
         print("🔌 A WebSocket client disconnected.")
     except Exception as e:
         print(f"❌ WebSocket error: {e}")
         try:
-            manager.disconnect(websocket)
+            await websocket.close()
         except:
             pass
 
