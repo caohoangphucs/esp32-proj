@@ -56,3 +56,25 @@ if (btnUp && btnDown && btnLeft && btnRight) {
         btn.addEventListener('contextmenu', (e) => e.preventDefault());
     });
 }
+
+// Keyboard Support - W/A/S/D keys
+const keyMap = { 'w': 'F', 'a': 'L', 's': 'B', 'd': 'R' };
+const keysHeld = {};
+
+document.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    if (keyMap[key] && !keysHeld[key]) {
+        keysHeld[key] = true;
+        startCommand(keyMap[key]);
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    const key = e.key.toLowerCase();
+    if (keyMap[key]) {
+        keysHeld[key] = false;
+        if (!Object.values(keysHeld).some(v => v)) {
+            stopCommand();
+        }
+    }
+});
