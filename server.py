@@ -127,6 +127,12 @@ async def websocket_car_endpoint(websocket: WebSocket):
                 await manager.broadcast(data_str, is_status=True)
                 continue
 
+            if data_str == "ESP32 connected":
+                manager.command_history.clear()
+                print("🧹 Cleared command history because ESP32 connected")
+                await manager.broadcast(data_str, is_status=True)
+                continue
+
             print(f"🎮 Car Command Received: {data_str}")
             await manager.broadcast(data)
     except WebSocketDisconnect:
