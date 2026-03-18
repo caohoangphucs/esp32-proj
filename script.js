@@ -44,6 +44,45 @@ function addLog(cmd, type = 'cmd') {
     logContainer.scrollTop = logContainer.scrollHeight;
 }
 
+// --- UI Status Updater ---
+function updateStatusUI(status) {
+    // Update Head Degree
+    const headContainer = document.getElementById('val-head-container');
+    const headTurret = document.getElementById('val-head-turret');
+    const headText = document.getElementById('val-head-text');
+    if (status.head !== undefined) {
+        headText.textContent = status.head + '°';
+        const cssRot = status.head - 90;
+        headTurret.style.transform = `rotate(${cssRot}deg)`;
+        headContainer.classList.remove('blur-val');
+    }
+
+    // Update Distance
+    const distEl = document.getElementById('val-dist');
+    if (status.dist !== undefined) {
+        distEl.textContent = typeof status.dist === 'number' ? status.dist.toFixed(1) : status.dist;
+        distEl.classList.remove('blur-val');
+    }
+
+    // Update Mode
+    const modeEl = document.getElementById('val-mode');
+    if (status.auto !== undefined) {
+        modeEl.textContent = status.auto ? 'Auto' : 'Manual';
+        modeEl.classList.remove('blur-val');
+        if (status.auto) {
+            modeEl.style.color = '#00ff88';
+        } else {
+            modeEl.style.color = '#c9d1d9';
+        }
+    }
+}
+
+// --- Fetch Initial Status ---
+fetch('/api/status')
+    .then(res => res.json())
+    .then(status => updateStatusUI(status))
+    .catch(err => console.error("Initial status err:", err));
+
 // --- Status handling now moved to WebSocket ---
 
 // --- WebSocket ---
@@ -74,36 +113,7 @@ ws.onmessage = (event) => {
     if (data.startsWith('{') && data.endsWith('}')) {
         try {
             const status = JSON.parse(data);
-            
-            // Update Head Degree
-            const headContainer = document.getElementById('val-head-container');
-            const headTurret = document.getElementById('val-head-turret');
-            const headText = document.getElementById('val-head-text');
-            if (status.head !== undefined) {
-                headText.textContent = status.head + '°';
-                const cssRot = status.head - 90;
-                headTurret.style.transform = `rotate(${cssRot}deg)`;
-                headContainer.classList.remove('blur-val');
-            }
-
-            // Update Distance
-            const distEl = document.getElementById('val-dist');
-            if (status.dist !== undefined) {
-                distEl.textContent = typeof status.dist === 'number' ? status.dist.toFixed(1) : status.dist;
-                document.getElementById('val-dist').classList.remove('blur-val');
-            }
-
-            // Update Mode
-            const modeEl = document.getElementById('val-mode');
-            if (status.auto !== undefined) {
-                modeEl.textContent = status.auto ? 'Auto' : 'Manual';
-                modeEl.classList.remove('blur-val');
-                if (status.auto) {
-                    modeEl.style.color = '#00ff88';
-                } else {
-                    modeEl.style.color = '#c9d1d9';
-                }
-            }
+            updateStatusUI(status);
             return; // Exit after processing status so it doesn't log
         } catch (e) {
             console.error("Failed to parse status JSON:", e);
