@@ -81,6 +81,52 @@ body {
     font-size: 0.75rem;
     color: #8b949e;
     line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+/* ===== Status Metrics ===== */
+.status-metrics {
+    display: flex;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.metric {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.metric-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: #8b949e;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.metric-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #c9d1d9;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    transition: filter 0.3s ease;
+}
+
+.blur-val {
+    filter: blur(4px);
+    opacity: 0.5;
+}
+
+.metric-unit {
+    font-size: 0.6rem;
+    color: #8b949e;
+    margin-left: 2px;
 }
 
 /* ===== Section Titles ===== */

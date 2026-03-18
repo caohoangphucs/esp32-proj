@@ -48,6 +48,8 @@ function addLog(cmd, type = 'cmd') {
 ws.onopen = () => {
     console.log("🔌 Connected to IoT Car WebSocket!");
     addLog('WebSocket connected', 'info');
+    document.getElementById('conn-indicator').style.backgroundColor = '#00ff88';
+    document.getElementById('conn-indicator').style.boxShadow = '0 0 10px #00ff88';
 };
 ws.onerror = (err) => {
     console.error("WebSocket Error:", err);
@@ -55,6 +57,51 @@ ws.onerror = (err) => {
 };
 ws.onclose = () => {
     addLog('WebSocket disconnected', 'error');
+    document.getElementById('conn-indicator').style.backgroundColor = '#ff6b6b';
+    document.getElementById('conn-indicator').style.boxShadow = '0 0 10px #ff6b6b';
+    
+    // Blur values on disconnect
+    document.getElementById('val-dist').classList.add('blur-val');
+    document.getElementById('val-mode').classList.add('blur-val');
+};
+
+ws.onmessage = (event) => {
+    const data = event.data.trim();
+    
+    // Check if it's a JSON status update
+    if (data.startsWith('{') && data.endsWith('}')) {
+        try {
+            const status = JSON.parse(data);
+            
+            // Update Distance
+            const distEl = document.getElementById('val-dist');
+            distEl.textContent = status.dist.toFixed(1);
+            distEl.classList.remove('blur-val');
+            
+            // Update Mode
+            const modeEl = document.getElementById('val-mode');
+            modeEl.textContent = status.auto ? 'Auto' : 'Manual';
+            modeEl.classList.remove('blur-val');
+            if (status.auto) {
+                modeEl.style.color = '#00ff88';
+            } else {
+                modeEl.style.color = '#c9d1d9';
+            }
+            
+        } catch (e) {
+            console.error("Failed to parse status JSON:", e);
+        }
+    } else {
+        // It's a standard text command echo, log it if it's not noise
+        if (data !== "ESP32 connected") {
+             // We don't addLog here because we already log when *we* send the command. 
+             // If another connected client sends a command, we could log it here.
+             // For now, let's just log it if it's a valid single character
+             if (data.length === 1 && CMD_LABELS[data]) {
+                  // Only log if it's from another client, or just ignore to avoid double-logging
+             }
+        }
+    }
 };
 
 function sendCommand(cmd) {
