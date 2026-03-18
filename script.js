@@ -52,10 +52,17 @@ setInterval(async () => {
         const status = await res.json();
         
         // Update Head Degree
-        const headEl = document.getElementById('val-head');
+        const headContainer = document.getElementById('val-head-container');
+        const headTurret = document.getElementById('val-head-turret');
+        const headText = document.getElementById('val-head-text');
+        
         if (status.head !== undefined) {
-            headEl.textContent = status.head;
-            headEl.classList.remove('blur-val');
+            headText.textContent = status.head + '°';
+            
+            // Map ESP servo degree (0=L, 90=M, 180=R) to CSS rotation (-90=L, 0=M, 90=R)
+            const cssRot = status.head - 90;
+            headTurret.style.transform = `rotate(${cssRot}deg)`;
+            headContainer.classList.remove('blur-val');
         }
 
         // Update Distance
