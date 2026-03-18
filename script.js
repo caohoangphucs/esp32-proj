@@ -44,48 +44,7 @@ function addLog(cmd, type = 'cmd') {
     logContainer.scrollTop = logContainer.scrollHeight;
 }
 
-// --- Status REST API Polling ---
-setInterval(async () => {
-    try {
-        const res = await fetch('/api/status');
-        if (!res.ok) throw new Error("API not ok");
-        const status = await res.json();
-        
-        // Update Head Degree
-        const headContainer = document.getElementById('val-head-container');
-        const headTurret = document.getElementById('val-head-turret');
-        const headText = document.getElementById('val-head-text');
-        
-        if (status.head !== undefined) {
-            headText.textContent = status.head + '°';
-            
-            // Map ESP servo degree (0=L, 90=M, 180=R) to CSS rotation (-90=L, 0=M, 90=R)
-            const cssRot = status.head - 90;
-            headTurret.style.transform = `rotate(${cssRot}deg)`;
-            headContainer.classList.remove('blur-val');
-        }
-
-        // Update Distance
-        const distEl = document.getElementById('val-dist');
-        distEl.textContent = typeof status.dist === 'number' ? status.dist.toFixed(1) : status.dist;
-        distEl.classList.remove('blur-val');
-        
-        // Update Mode
-        const modeEl = document.getElementById('val-mode');
-        modeEl.textContent = status.auto ? 'Auto' : 'Manual';
-        modeEl.classList.remove('blur-val');
-        if (status.auto) {
-            modeEl.style.color = '#00ff88';
-        } else {
-            modeEl.style.color = '#c9d1d9';
-        }
-        
-    } catch (err) {
-        // Blur if we can't reach the server API
-        document.getElementById('val-dist').classList.add('blur-val');
-        document.getElementById('val-mode').classList.add('blur-val');
-    }
-}, 500);
+// --- Status handling now moved to WebSocket ---
 
 // --- WebSocket ---
 ws.onopen = () => {
@@ -110,7 +69,49 @@ ws.onclose = () => {
 
 ws.onmessage = (event) => {
     const data = event.data.trim();
-    // Do nothing with incoming command echoes for now to keep log clean
+    
+    // Check if it's a JSON status update
+    if (data.startsWith('{') && data.endsWith('}')) {
+        try {
+            const status = JSON.parse(data);
+            
+            // Update Head Degree
+            const headContainer = document.getElementById('val-head-container');
+            const headTurret = document.getElementById('val-head-turret');
+            const headText = document.getElementById('val-head-text');
+            if (status.head !== undefined) {
+                headText.textContent = status.head + '°';
+                const cssRot = status.head - 90;
+                headTurret.style.transform = `rotate(${cssRot}deg)`;
+                headContainer.classList.remove('blur-val');
+            }
+
+            // Update Distance
+            const distEl = document.getElementById('val-dist');
+            if (status.dist !== undefined) {
+                distEl.textContent = typeof status.dist === 'number' ? status.dist.toFixed(1) : status.dist;
+                document.getElementById('val-dist').classList.remove('blur-val');
+            }
+
+            // Update Mode
+            const modeEl = document.getElementById('val-mode');
+            if (status.auto !== undefined) {
+                modeEl.textContent = status.auto ? 'Auto' : 'Manual';
+                modeEl.classList.remove('blur-val');
+                if (status.auto) {
+                    modeEl.style.color = '#00ff88';
+                } else {
+                    modeEl.style.color = '#c9d1d9';
+                }
+            }
+            return; // Exit after processing status so it doesn't log
+        } catch (e) {
+            console.error("Failed to parse status JSON:", e);
+        }
+    }
+    
+    // Otherwise it's a command echo, we can just log it or ignore it.
+    // Kept ignored for now to keep log clean.
 };
 
 function sendCommand(cmd) {

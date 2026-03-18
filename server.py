@@ -36,9 +36,10 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
-    async def broadcast(self, message: str):
-        # Add command to history
-        self.command_history.append(message)
+    async def broadcast(self, message: str, is_status: bool = False):
+        # Add command to history only if it's not a status update
+        if not is_status:
+            self.command_history.append(message)
         
         # Broadcast to all connected clients
         for connection in self.active_connections:
@@ -116,7 +117,8 @@ async def websocket_car_endpoint(websocket: WebSocket):
                     status_data = json.loads(data_str)
                     global car_status
                     car_status.update(status_data)
-                    # Do not broadcast status spam to command history
+                    # Broadcast status to clients without saving in command history
+                    await manager.broadcast(data_str, is_status=True)
                     continue
                 except json.JSONDecodeError:
                     pass
