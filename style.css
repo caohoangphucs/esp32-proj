@@ -16,137 +16,110 @@ body {
     justify-content: center;
 }
 
-/* Float controls above map */
+/* ===== Overlay Layout ===== */
 .overlay {
     position: absolute;
-    top: 24px;
-    left: 24px;
+    inset: 0;
     z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
+/* ===== Glass Panel Base ===== */
 .glass-panel {
-    background: rgba(13, 17, 23, 0.7);
+    background: rgba(13, 17, 23, 0.85);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 28px;
-    width: 360px;
+    border-radius: 16px;
+    padding: 16px;
     color: #e6edf3;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
 }
 
-.glass-panel:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+/* ===== Info Panel ===== */
+.info-panel {
+    padding: 14px 16px;
 }
 
 .header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 4px;
 }
 
 .status-indicator {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     background-color: #00ff88;
     border-radius: 50%;
-    box-shadow: 0 0 12px #00ff88;
+    box-shadow: 0 0 10px #00ff88;
     animation: pulse-status 2s infinite ease-in-out;
 }
 
+@keyframes pulse-status {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px #00ff88; }
+    50% { opacity: 0.6; box-shadow: 0 0 4px #00ff88; }
+}
+
 .glass-panel h1 {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
     background: linear-gradient(135deg, #00f2fe, #4facfe);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
 }
 
 .glass-panel p {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #8b949e;
-    line-height: 1.5;
-    margin-bottom: 0;
+    line-height: 1.4;
 }
 
-.input-group {
-    margin-bottom: 18px;
-}
-
-.input-group label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #c9d1d9;
-    margin-bottom: 8px;
-    letter-spacing: 0.5px;
+/* ===== Section Titles ===== */
+.controls-title {
+    font-size: 0.75rem;
+    color: #8b949e;
+    margin-bottom: 12px;
+    text-align: center;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
 }
 
-.input-group input {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 12px 14px;
-    color: #ffffff;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-}
-
-.input-group input:focus {
-    outline: none;
-    border-color: #4facfe;
-    background: rgba(255, 255, 255, 0.06);
-    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
-}
-
-.input-group input::placeholder {
-    color: rgba(255, 255, 255, 0.2);
-}
-
-/* Number input arrows removal for cleaner look */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-input[type="number"] {
-    -moz-appearance: textfield;
-}
-
-/* D-Pad Styling */
+/* ===== D-Pad ===== */
 .dpad {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .dpad-row {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .dpad-btn {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #e6edf3;
     font-size: 1.2rem;
     font-weight: bold;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    margin: 0;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -155,16 +128,287 @@ input[type="number"] {
     touch-action: none;
 }
 
-.dpad-btn:hover {
-    background: rgba(79, 172, 254, 0.2);
+.dpad-btn:active, .dpad-btn.active {
+    background: rgba(79, 172, 254, 0.35);
     border-color: #4facfe;
-    box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
-    transform: translateY(-2px);
-    color: #ffffff;
+    box-shadow: 0 0 12px rgba(79, 172, 254, 0.4);
+    transform: scale(0.95);
 }
 
-.dpad-btn:active {
-    background: rgba(79, 172, 254, 0.4);
-    transform: translateY(2px);
-    box-shadow: 0 0 5px rgba(79, 172, 254, 0.2);
+.btn-stop {
+    background: rgba(255, 70, 70, 0.1);
+    border-color: rgba(255, 70, 70, 0.2);
+    color: #ff6b6b;
+    font-size: 0.9rem;
+}
+
+.btn-stop:active, .btn-stop.active {
+    background: rgba(255, 70, 70, 0.35);
+    border-color: #ff6b6b;
+    box-shadow: 0 0 12px rgba(255, 70, 70, 0.4);
+}
+
+/* ===== Action Buttons Grid ===== */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: #c9d1d9;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.action-icon {
+    font-size: 1.3rem;
+}
+
+.action-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+}
+
+.action-btn:active {
+    background: rgba(79, 172, 254, 0.25);
+    border-color: #4facfe;
+    transform: scale(0.95);
+}
+
+.btn-auto-on:active {
+    background: rgba(0, 255, 136, 0.25);
+    border-color: #00ff88;
+}
+
+.btn-auto-off:active {
+    background: rgba(255, 70, 70, 0.25);
+    border-color: #ff6b6b;
+}
+
+/* ===== Log Panel ===== */
+.log-panel {
+    flex: 1;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.log-header .controls-title {
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.clear-log-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #8b949e;
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.15s ease;
+}
+
+.clear-log-btn:active {
+    background: rgba(255, 70, 70, 0.2);
+    border-color: rgba(255, 70, 70, 0.3);
+    color: #ff6b6b;
+}
+
+.log-container {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.7rem;
+    padding-right: 4px;
+}
+
+.log-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.log-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.log-entry {
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    color: #8b949e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    animation: fadeIn 0.2s ease;
+}
+
+.log-entry .log-time {
+    color: #484f58;
+    margin-right: 6px;
+}
+
+.log-entry .log-cmd {
+    color: #4facfe;
+    font-weight: 600;
+}
+
+.log-info {
+    color: #00ff88;
+}
+
+.log-error {
+    color: #ff6b6b;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =======================================
+   PORTRAIT (default, phones upright)
+   ======================================= */
+.main-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* =======================================
+   LANDSCAPE (phone rotated)
+   ======================================= */
+@media (orientation: landscape) and (max-height: 500px) {
+    .overlay {
+        flex-direction: row;
+        padding: 8px;
+        gap: 8px;
+        overflow: hidden;
+    }
+
+    .main-controls {
+        flex-direction: column;
+        gap: 8px;
+        width: 55%;
+        max-width: 320px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    .info-panel {
+        padding: 10px 14px;
+    }
+
+    .glass-panel h1 {
+        font-size: 1rem;
+    }
+
+    .glass-panel p {
+        display: none;
+    }
+
+    .controls-panel, .actions-panel {
+        padding: 10px 14px;
+    }
+
+    .controls-title {
+        margin-bottom: 8px;
+        font-size: 0.65rem;
+    }
+
+    .dpad-btn {
+        width: 46px;
+        height: 46px;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+
+    .dpad {
+        gap: 4px;
+    }
+
+    .dpad-row {
+        gap: 4px;
+    }
+
+    .action-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+
+    .action-btn {
+        padding: 8px 4px;
+    }
+
+    .action-icon {
+        font-size: 1.1rem;
+    }
+
+    .action-label {
+        font-size: 0.55rem;
+    }
+
+    .log-panel {
+        flex: 1;
+        min-height: unset;
+        max-height: 100%;
+    }
+}
+
+/* =======================================
+   SMALL PORTRAIT SCREENS
+   ======================================= */
+@media (max-width: 380px) {
+    .overlay {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .glass-panel {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .dpad-btn {
+        width: 50px;
+        height: 50px;
+    }
+
+    .action-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
 }
