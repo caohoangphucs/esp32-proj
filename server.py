@@ -116,7 +116,7 @@ async def websocket_car_endpoint(websocket: WebSocket):
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Mount all static files including HTML as fallback
-app.mount("/", StaticFiles(directory=current_dir, html=True), name="static")
+app.mount("/static", StaticFiles(directory=current_dir, html=True), name="static")
 
 if __name__ == '__main__':
     print("🚀 FastAPI Car Controller Server is running!")
