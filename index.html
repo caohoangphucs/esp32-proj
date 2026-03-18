@@ -1,55 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ESP32 Car Controller</title>
     <!-- Modern Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
     <div class="overlay">
-        <div class="glass-panel">
-            <div class="header">
-                <div class="status-indicator"></div>
-                <h1>Car Controller</h1>
+        <!-- Info + Controls Column -->
+        <div class="main-controls">
+            <div class="glass-panel info-panel">
+                <div class="header">
+                    <div class="status-indicator" id="conn-indicator"></div>
+                    <h1>Car Controller</h1>
+                </div>
+                <p>Connected to ESP32 car module</p>
+                <div class="status-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Distance</span>
+                        <span class="metric-value blur-val" id="val-dist">--</span>
+                        <span class="metric-unit">cm</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Mode</span>
+                        <span class="metric-value blur-val" id="val-mode">Manual</span>
+                    </div>
+                </div>
             </div>
-            <p>Connected to ESP32 car module</p>
+
+            <div class="glass-panel controls-panel">
+                <h2 class="controls-title">Movement</h2>
+                <div class="dpad">
+                    <div class="dpad-row">
+                        <button id="btn-up" class="dpad-btn" data-cmd="F">W</button>
+                    </div>
+                    <div class="dpad-row">
+                        <button id="btn-left" class="dpad-btn" data-cmd="L">A</button>
+                        <button id="btn-down" class="dpad-btn" data-cmd="B">S</button>
+                        <button id="btn-right" class="dpad-btn" data-cmd="R">D</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel actions-panel">
+                <h2 class="controls-title">Actions</h2>
+                <div class="action-grid">
+                    <button id="btn-head-left" class="action-btn" data-cmd="C">
+                        <span class="action-icon">↺</span>
+                        <span class="action-label">Head L</span>
+                    </button>
+                    <button id="btn-head-right" class="action-btn" data-cmd="D">
+                        <span class="action-icon">↻</span>
+                        <span class="action-label">Head R</span>
+                    </button>
+                    <button id="btn-auto-turn" class="action-btn" data-cmd="1">
+                        <span class="action-icon">⟳</span>
+                        <span class="action-label">Auto Turn</span>
+                    </button>
+                    <button id="btn-auto-on" class="action-btn btn-auto-on" data-cmd="V">
+                        <span class="action-icon">⚡</span>
+                        <span class="action-label">Auto ON</span>
+                    </button>
+                    <button id="btn-auto-off" class="action-btn btn-auto-off" data-cmd="v">
+                        <span class="action-icon">⏸</span>
+                        <span class="action-label">Auto OFF</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="glass-panel" style="margin-top: 16px; padding: 20px;">
-            <h2
-                style="font-size: 1.1rem; color: #c9d1d9; margin-bottom: 16px; text-align: center; text-transform: uppercase;">
-                Car Controls</h2>
-            <div class="dpad">
-                <div class="dpad-row">
-                    <button id="btn-up" class="dpad-btn">W</button>
-                </div>
-                <div class="dpad-row">
-                    <button id="btn-left" class="dpad-btn">A</button>
-                    <button id="btn-down" class="dpad-btn">S</button>
-                    <button id="btn-right" class="dpad-btn">D</button>
-                </div>
+        <!-- Log Panel -->
+        <div class="glass-panel log-panel">
+            <div class="log-header">
+                <h2 class="controls-title">Command Log</h2>
+                <button id="btn-clear-log" class="clear-log-btn">Clear</button>
+            </div>
+            <div id="log-container" class="log-container">
+                <div class="log-entry log-info">System ready...</div>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-
-</html>
-<button id="btn-clear-log" class="clear-log-btn">Clear</button>
-</div>
-<div id="log-container" class="log-container">
-    <div class="log-entry log-info">System ready...</div>
-</div>
-</div>
-</div>
-
-<script src="script.js"></script>
-</body>
-
 </html>
