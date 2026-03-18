@@ -85,6 +85,13 @@ async def websocket_docs():
         "commands": ["F (Forward)", "B (Backward)", "L (Left)", "R (Right)", "S (Stop)"]
     }
 
+car_status = {"dist": 0.0, "auto": False}
+
+@app.get("/api/status")
+async def get_status():
+    """Endpoint for the UI to fetch the latest car status."""
+    return car_status
+
 @app.websocket("/ws/car")
 async def websocket_car_endpoint(websocket: WebSocket):
     """
@@ -100,7 +107,21 @@ async def websocket_car_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            print(f"🎮 Car Command Received: {data.strip()}")
+            data_str = data.strip()
+            
+            # Intercept JSON status updates from ESP32
+            if data_str.startswith('{') and data_str.endswith('}'):
+                try:
+                    import json
+                    status_data = json.loads(data_str)
+                    global car_status
+                    car_status.update(status_data)
+                    # Do not broadcast status spam to command history
+                    continue
+                except json.JSONDecodeError:
+                    pass
+
+            print(f"🎮 Car Command Received: {data_str}")
             await manager.broadcast(data)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
