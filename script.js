@@ -131,7 +131,7 @@ function stopCommand(shouldSendStop = true) {
 }
 
 // --- Movement D-Pad (hold to repeat) ---
-const holdButtons = ['btn-up', 'btn-down', 'btn-left', 'btn-right', 'btn-stop'];
+const holdButtons = ['btn-up', 'btn-down', 'btn-left', 'btn-right', 'btn-stop', 'btn-head-left', 'btn-head-right'];
 
 holdButtons.forEach(id => {
     const btn = document.getElementById(id);
@@ -164,7 +164,7 @@ holdButtons.forEach(id => {
 });
 
 // --- Action Buttons (single press) ---
-const actionButtons = ['btn-head-left', 'btn-head-right', 'btn-auto-turn', 'btn-auto-on', 'btn-auto-off'];
+const actionButtons = ['btn-auto-turn', 'btn-auto-on', 'btn-auto-off'];
 
 actionButtons.forEach(id => {
     const btn = document.getElementById(id);
@@ -197,7 +197,7 @@ document.addEventListener('keydown', (e) => {
 
     const cmd = KEY_MAP[e.key];
     if (cmd) {
-        if (['F', 'B', 'L', 'R'].includes(cmd)) {
+        if (['F', 'B', 'L', 'R', 'C', 'D'].includes(cmd)) {
             startCommand(cmd);
         } else {
             sendCommand(cmd);
@@ -208,7 +208,7 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => {
     keysDown.delete(e.key);
     const cmd = KEY_MAP[e.key];
-    if (cmd && ['F', 'B', 'L', 'R'].includes(cmd)) {
+    if (cmd && ['F', 'B', 'L', 'R', 'C', 'D'].includes(cmd)) {
         stopCommand();
     }
 });
