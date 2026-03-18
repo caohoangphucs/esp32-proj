@@ -123,6 +123,10 @@ async def websocket_car_endpoint(websocket: WebSocket):
                 except json.JSONDecodeError:
                     pass
 
+            if data_str == "PING":
+                await websocket.send_text("PONG")
+                continue
+
             print(f"🎮 Car Command Received: {data_str}")
             await manager.broadcast(data)
     except WebSocketDisconnect:

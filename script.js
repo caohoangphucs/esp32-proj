@@ -85,6 +85,15 @@ fetch('/api/status')
 
 // --- Status handling now moved to WebSocket ---
 
+// --- Ping System ---
+let pingStart = 0;
+setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+        pingStart = Date.now();
+        ws.send('PING');
+    }
+}, 2000);
+
 // --- WebSocket ---
 ws.onopen = () => {
     console.log("🔌 Connected to IoT Car WebSocket!");
@@ -104,10 +113,26 @@ ws.onclose = () => {
     // Blur values on disconnect
     document.getElementById('val-dist').classList.add('blur-val');
     document.getElementById('val-mode').classList.add('blur-val');
+    document.getElementById('val-head-container')?.classList.add('blur-val');
+    document.getElementById('val-ping')?.classList.add('blur-val');
 };
 
 ws.onmessage = (event) => {
     const data = event.data.trim();
+    
+    if (data === "PONG") {
+        const ping = Date.now() - pingStart;
+        const pingEl = document.getElementById('val-ping');
+        if (pingEl) {
+            pingEl.textContent = ping;
+            pingEl.classList.remove('blur-val');
+            // Colors: Green for good, yellow for fair, red for bad ping
+            if (ping < 50) pingEl.style.color = '#00ff88';
+            else if (ping < 150) pingEl.style.color = '#f1c40f';
+            else pingEl.style.color = '#ff6b6b';
+        }
+        return;
+    }
     
     // Check if it's a JSON status update
     if (data.startsWith('{') && data.endsWith('}')) {
