@@ -95,6 +95,7 @@ async def websocket_car_endpoint(websocket: WebSocket):
     the client receives all previously sent commands, then receives
     new commands in real-time as other clients send them.
     """
+    global car_status
     print(f"🔌 WebSocket connection attempt from {websocket.client}")
     await manager.connect(websocket)
     print(f"✅ WebSocket connected from {websocket.client}")
@@ -108,7 +109,6 @@ async def websocket_car_endpoint(websocket: WebSocket):
                 try:
                     import json
                     status_data = json.loads(data_str)
-                    global car_status
                     car_status.update(status_data)
                     # Broadcast status to clients without saving in command history
                     await manager.broadcast(data_str, is_status=True)
@@ -125,7 +125,6 @@ async def websocket_car_endpoint(websocket: WebSocket):
                 manager.command_history.clear()
                 
                 # Reset the car status cache
-                global car_status
                 car_status = {"dist": 0.0, "auto": False, "head": 90}
                 
                 await manager.broadcast(data_str, is_status=True)
