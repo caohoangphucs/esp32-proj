@@ -25,13 +25,6 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        
-        # Send all previous commands to the newly connected client
-        for command in self.command_history:
-            try:
-                await websocket.send_text(command)
-            except:
-                pass
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
@@ -128,8 +121,13 @@ async def websocket_car_endpoint(websocket: WebSocket):
                 continue
 
             if data_str == "ESP32 connected":
+                print("🔄 ESP32 Connected: Resetting server state...")
                 manager.command_history.clear()
-                print("🧹 Cleared command history because ESP32 connected")
+                
+                # Reset the car status cache
+                global car_status
+                car_status = {"dist": 0.0, "auto": False, "head": 90}
+                
                 await manager.broadcast(data_str, is_status=True)
                 continue
 
