@@ -52,7 +52,9 @@ function updateStatusUI(status) {
     const headText = document.getElementById('val-head-text');
     if (status.head !== undefined) {
         headText.textContent = status.head + '°';
-        const cssRot = status.head - 90;
+        // Map ESP servo degree to CSS rotation. 
+        // 90 - status.head -> Inverted logical degree mapped to CSS (90=M, 0=L/R flipped, 180=L/R flipped)
+        const cssRot = 90 - status.head;
         headTurret.style.transform = `rotate(${cssRot}deg)`;
         headContainer.classList.remove('blur-val');
     }
@@ -90,7 +92,7 @@ let pingStart = 0;
 setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
         pingStart = Date.now();
-        ws.send('PING');
+        ws.send('PING\n');
     }
 }, 2000);
 
