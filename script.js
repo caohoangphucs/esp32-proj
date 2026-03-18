@@ -51,6 +51,13 @@ setInterval(async () => {
         if (!res.ok) throw new Error("API not ok");
         const status = await res.json();
         
+        // Update Head Degree
+        const headEl = document.getElementById('val-head');
+        if (status.head !== undefined) {
+            headEl.textContent = status.head;
+            headEl.classList.remove('blur-val');
+        }
+
         // Update Distance
         const distEl = document.getElementById('val-dist');
         distEl.textContent = typeof status.dist === 'number' ? status.dist.toFixed(1) : status.dist;

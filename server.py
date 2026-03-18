@@ -85,7 +85,7 @@ async def websocket_docs():
         "commands": ["F (Forward)", "B (Backward)", "L (Left)", "R (Right)", "S (Stop)"]
     }
 
-car_status = {"dist": 0.0, "auto": False}
+car_status = {"dist": 0.0, "auto": False, "head": 90}
 
 @app.get("/api/status")
 async def get_status():
