@@ -64,6 +64,13 @@ function updateStatusUI(status) {
     if (status.dist !== undefined) {
         distEl.textContent = typeof status.dist === 'number' ? status.dist.toFixed(1) : status.dist;
         distEl.classList.remove('blur-val');
+        
+        // Color code distance (closer = redder)
+        if (typeof status.dist === 'number') {
+            if (status.dist < 15) distEl.style.color = '#ff6b6b';      // Danger: Too close (Red)
+            else if (status.dist < 40) distEl.style.color = '#f1c40f'; // Warning: Getting close (Yellow)
+            else distEl.style.color = '#00ff88';                       // Safe: Far away (Green)
+        }
     }
 
     // Update Mode
