@@ -247,6 +247,8 @@ const KEY_MAP = {
     'c': 'C',
     'e': 'D',
     '1': '1',
+    'i': 'I',
+    'I': 'I',
 };
 
 const keysDown = new Set();
