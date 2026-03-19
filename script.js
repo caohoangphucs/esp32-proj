@@ -16,6 +16,7 @@ const CMD_LABELS = {
     '1': 'Auto Turn',
     'V': 'Auto ON',
     'v': 'Auto OFF',
+    'I': 'LED Toggle',
 };
 
 function getTimeStr() {
@@ -223,7 +224,7 @@ holdButtons.forEach(id => {
 });
 
 // --- Action Buttons (single press) ---
-const actionButtons = ['btn-auto-turn', 'btn-auto-on', 'btn-auto-off'];
+const actionButtons = ['btn-auto-turn', 'btn-auto-on', 'btn-auto-off', 'btn-led'];
 
 actionButtons.forEach(id => {
     const btn = document.getElementById(id);
