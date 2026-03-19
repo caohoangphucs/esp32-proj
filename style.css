@@ -73,6 +73,7 @@ body {
     font-weight: 600;
     background: linear-gradient(135deg, #00f2fe, #4facfe);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.3px;
 }
@@ -240,7 +241,7 @@ body {
 /* ===== Action Buttons Grid ===== */
 .action-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
 }
 
@@ -465,7 +466,7 @@ body {
     }
 
     .action-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 6px;
     }
 
@@ -508,7 +509,7 @@ body {
     }
 
     .action-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 6px;
     }
 }
