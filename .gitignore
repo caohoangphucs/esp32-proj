@@ -1,2 +1,9 @@
 venv/
 __pycache__/
+
+*.mp4
+*.pyc
+*.zip
+.env
+.venv/
+node_modules/
